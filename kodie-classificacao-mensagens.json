@@ -1,0 +1,246 @@
+{
+  "name": "kodie-classificacao-mensagens",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "classificar-mensagem",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        -32
+      ],
+      "id": "ef5f26df-2601-4588-840b-2b31c0188b18",
+      "name": "Webhook1",
+      "webhookId": "6c6cc4b8-7ce1-4e9b-a247-95cc81c83ffd"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://curvy-liver-cider.ngrok-free.dev/classificar",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"mensagem\": $json.body.mensagem } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        256,
+        -64
+      ],
+      "id": "d17f7413-86ea-46dd-907f-3c7f66668547",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 4
+                },
+                "conditions": [
+                  {
+                    "id": "6223aa3a-fa62-489d-8aca-f5860244a1de",
+                    "leftValue": "=={{ $json.setor_destino.trim() }}",
+                    "rightValue": "Financeiro",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Financeiro"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 4
+                },
+                "conditions": [
+                  {
+                    "id": "1a714b8d-955d-4765-bf56-6daa2cf3ff5b",
+                    "leftValue": "=={{ $json.setor_destino.trim() }}",
+                    "rightValue": "Suporte Técnico",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Suporte Técnico"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 4
+                },
+                "conditions": [
+                  {
+                    "id": "c6828e1b-392a-48ba-b089-4f14134e1159",
+                    "leftValue": "=={{ $json.setor_destino.trim() }}",
+                    "rightValue": "Comercial",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Comercial"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.5,
+      "position": [
+        480,
+        -64
+      ],
+      "id": "ec6a31e3-74d3-406a-b951-8435aa660ae5",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://httpbin.org/post",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"setor\": \"Financeiro\", \"categoria\": $('HTTP Request').item.json.categoria, \"urgencia\": $('HTTP Request').item.json.urgencia, \"resumo\": $('HTTP Request').item.json.resumo } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        704,
+        -240
+      ],
+      "id": "43af358d-5642-462d-a1b7-62d27aa1d4b8",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://httpbin.org/post",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"setor\": \"Suporte Técnico\", \"categoria\": $('HTTP Request').item.json.categoria, \"urgencia\": $('HTTP Request').item.json.urgencia, \"resumo\": $('HTTP Request').item.json.resumo } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        816,
+        -80
+      ],
+      "id": "8087522e-a1f1-4860-9828-519aa58ad3ad",
+      "name": "HTTP Request2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://httpbin.org/post",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"setor\": \"Comercial\", \"categoria\": $('HTTP Request').item.json.categoria, \"urgencia\": $('HTTP Request').item.json.urgencia, \"resumo\": $('HTTP Request').item.json.resumo } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        800,
+        144
+      ],
+      "id": "36df8ab8-01c8-412f-8fa5-2dc9bdcd8887",
+      "name": "HTTP Request3"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "6df26ac1-1c4c-4e7a-80a4-3545617b2a31",
+  "meta": {
+    "instanceId": "5c543fe4b1caf8d7df190b872b07a3466a14a5247ffa2872080aa1adbeeb57ce"
+  },
+  "nodeGroups": [],
+  "id": "0agb70Hl5vxighuW",
+  "tags": []
+}
